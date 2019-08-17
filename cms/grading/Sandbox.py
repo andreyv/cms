@@ -1407,11 +1407,11 @@ class IsolateSandbox(SandboxBase):
             [self.box_exec]
             + (["--cg"] if self.cgroup else [])
             + ["--box-id=%d" % self.box_id, "--init"])
-        ret = subprocess.call(init_cmd)
-        if ret != 0:
+        try:
+            subprocess.check_call(init_cmd)
+        except subprocess.SubprocessError as e:
             raise SandboxInterfaceException(
-                "Failed to initialize sandbox with command: %s "
-                "(error %d)" % (pretty_print_cmdline(init_cmd), ret))
+                "Failed to initialize sandbox") from e
 
     def cleanup(self, delete=False):
         """See Sandbox.cleanup()."""
@@ -1427,6 +1427,7 @@ class IsolateSandbox(SandboxBase):
             + ["--box-id=%d" % self.box_id]
 
         if delete:
+            # Ignore exit status as some files may be owned by our user
             subprocess.call(
                 exe + [
                     "--dir=%s=%s:rw" % (self._home_dest, self._home),
@@ -1435,7 +1436,7 @@ class IsolateSandbox(SandboxBase):
                 stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
         # Tell isolate to cleanup the sandbox.
-        subprocess.call(exe + ["--cleanup"],
+        subprocess.check_call(exe + ["--cleanup"],
                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
         if delete:

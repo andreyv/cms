@@ -54,9 +54,8 @@ def sh(cmdline, ignore_failure=False):
     if CONFIG["VERBOSITY"] >= 3:
         kwargs["stdout"] = subprocess.DEVNULL
         kwargs["stderr"] = subprocess.STDOUT
-    ret = subprocess.call(cmdline, **kwargs)
-    if not ignore_failure and ret != 0:
-        raise TestException(
-            # TODO Use shlex.quote in Python 3.3.
-            "Execution failed with %d/%d. Tried to execute:\n%s\n" %
-            (ret & 0xff, ret >> 8, ' '.join(cmdline)))
+    kwargs["check"] = not ignore_failure
+    try:
+        subprocess.run(cmdline, **kwargs)
+    except subprocess.SubprocessError as e:
+        raise TestException("Execution failed") from e
