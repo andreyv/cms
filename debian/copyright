@@ -47,7 +47,7 @@ License: Expat or GPL-2
 Files: cms/server/static/css/bootstrap.css
        cms/server/static/js/bootstrap.js
        cms/server/static/img/glyphicons-halflings*.png
-Copyright: 2012 Twitter, Inc.
+Copyright: 2013 Twitter, Inc
 License: Apache-2.0
 
 Files: cms/server/static/img/mimetypes/*.png
